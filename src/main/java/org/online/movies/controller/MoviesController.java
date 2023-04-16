@@ -17,17 +17,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/movies")
 public class MoviesController {
-
-    @Autowired
-    private MovieRepository movieRepository;
-
     @Autowired
     private MovieService movieService;
 
     @GetMapping
     public ResponseEntity<List<Movie>> getAllMovies() {
-        List<Movie> movies = movieRepository.findAll();
-        return new ResponseEntity<>(movies, HttpStatus.OK);
+        return new ResponseEntity<>(movieService.findAll(), HttpStatus.OK);
     }
 
     @PostMapping
