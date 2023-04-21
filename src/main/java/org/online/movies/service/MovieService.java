@@ -17,9 +17,15 @@ public class MovieService {
     private MovieRepository movieRepository;
 
     @Autowired
+    private UserPermissionService userPermissionService;
+
+    @Autowired
     private ModelMapper modelMapper;
 
     public MovieDto addMovie(MovieDto movieDto) {
+        if (this.movieExists(movieDto.getTitle())) {
+            throw new RuntimeException("Movie already exists");
+        }
         Movie movieEntity = new Movie();
         BeanUtils.copyProperties(movieDto, movieEntity);
         Movie savedMovieEntity = movieRepository.save(movieEntity);
@@ -30,7 +36,14 @@ public class MovieService {
     }
 
     public List<MovieDto> findAll() {
+        movieRepository.countByTitle("title");
         List<Movie> allMovies = movieRepository.findAll();
         return allMovies.stream().map(movie -> modelMapper.map(movie, MovieDto.class)).collect(Collectors.toList());
+    }
+
+    public boolean movieExists(String title) {
+        boolean exists = movieRepository.findByTitle(title) != null;
+
+        return exists;
     }
 }

@@ -28,4 +28,7 @@ public class Movie {
                 ", year=" + year +
                 '}';
     }
+
+    // add entity logic
+
 }
