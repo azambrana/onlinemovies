@@ -2,6 +2,18 @@
 'https://plantuml.com/class-diagram
 
 'RBAC role based access control
+'CRUD Create Read Update Delete
+
+interface AuthorizationService
+interface UserService
+interface PermissionService
+interface ResourceService
+
+interface MovieRepository
+interface UserRepository
+interface RoleRepository
+interface ResourceRepository
+interface PermissionRepository
 
 class User
 'class UserDetails
@@ -11,12 +23,134 @@ class User
 class Role
 class UserRole
 class Permission
+class Movie
+
+' 1, "CREATE", "USER", "create user"
+' 2, "READ", "USER", "read user"
+' 3, "CREATE", "MOVIE", "create movie"
+' 4, "READ", "MOVIE", "read movie"
+
 class RolePermission
 
 User o-- Role
+User o-- Permission
+Role o-- Permission
+Permission o-- Resource
+
+RolePermission o-- Permission
+RolePermission o-- Role
+
 UserRole o-- User
 UserRole o-- Role
 
-'class UserPermission
+AuthorizationService -- User
+AuthorizationService -- Permission
+AuthorizationService -- Resource
+
+AuthorizationService o-- UserService
+AuthorizationService o-- PermissionService
+AuthorizationService o-- ResourceService
+
+' entities
+class User {
+    -id: Long
+    -firstName: String
+    -lastName: String
+    -username: String
+    -password: String
+    -email: String
+
+    ' getter and setters
+}
+
+class Role {
+    -id: Long
+    -name: String
+    -description: String
+    -permissions: Set<Permission>
+
+    ' getter and setters
+}
+
+class Permission {
+    -id
+    -name
+    -resources: Set<Resource>
+    ' getter and setters
+}
+
+class Resource {
+    -id
+    -name
+    ' getter and setters
+}
+
+class Movie {
+    id: Long
+    title: String
+    genre: String
+    year: String
+
+    ' getter and setters
+}
+
+' dtos
+
+class UserDto {
+    -id: Long
+    -firstName: String
+    -lastName: String
+    -username: String
+    -password: String
+    -email: String
+
+    ' getter and setters
+}
+
+
+class MovieDto {
+    id: Long
+    title: String
+    genre: String
+    year: String
+
+    ' getter and setters
+}
+' interfaces
+
+interface AuthorizationService {
+    +hasPermission(user: User, permission: Permission, resource: Resource)
+    +hasPermission(userName: String, permissionName: String, resourceName: String)
+    +hasRole(user, role)
+}
+
+interface AuthenticationService {
+    +login(username, password)
+    +logout()
+    +isThereAnySession(session: HttpServletRequest): boolean
+}
+
+' controllers
+UserController o-- UserService
+UserController o-- AuthorizationService
+UserController o-- AuthenticationService
+
+class UserController {
+    +createUser(user: User)
+    +readUser(id: Long)
+    +updateUser(user: User)
+    +deleteUser(id: Long)
+}
+
+MovieService o-- MovieRepository
+MovieController o-- MovieService
+MovieController o-- AuthorizationService
+
+class MovieController {
+    +createMovie(movie: Movie)
+    +readMovie(id: Long)
+    +updateMovie(movie: Movie)
+    +deleteMovie(id: Long)
+}
 
 @enduml

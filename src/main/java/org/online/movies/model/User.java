@@ -26,7 +26,7 @@ public class User {
     private String firstName;
     private String lastName;
     @ManyToMany(cascade = CascadeType.ALL)
-    @JoinTable(name = "user_role", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
+    @JoinTable(name = "user_role")
     private Set<Role> roles;
 
 }

@@ -48,6 +48,14 @@
 				}
 			},
 			"response": []
+		},
+		{
+			"name": "Register new User",
+			"request": {
+				"method": "GET",
+				"header": []
+			},
+			"response": []
 		}
 	],
 	"variable": [
