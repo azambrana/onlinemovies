@@ -13,6 +13,8 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 @Component
 public class DataInitializer {
@@ -30,16 +32,32 @@ public class DataInitializer {
     public void initData() {
         Resource userResource = new Resource(1L, "USER");
         resourceRepository.save(userResource);
+        Resource movieResource = new Resource(2L, "MOVIE");
+        resourceRepository.save(movieResource);
 
-        Permission permission = new Permission(1L, "CREATE", Collections.singleton(userResource));
-        permissionRepository.save(permission);
+        Permission createUserPermission = new Permission(1L, "CREATE_USER", Collections.singleton(userResource));
+        Permission readMoviePermission = new Permission(2L, "READ_MOVIE", Collections.singleton(movieResource));
+        Permission createMoviePermission = new Permission(3L, "CREATE_MOVIE", Collections.singleton(movieResource));
+        permissionRepository.save(readMoviePermission);
+        permissionRepository.save(createMoviePermission);
 
         Role anonymousRole = new Role();
         anonymousRole.setId(1L);
         anonymousRole.setName("ROLE_ANONYMOUS");
-        anonymousRole.setPermissions(Collections.singleton(permission));
+        anonymousRole.setPermissions(Collections.singleton(createUserPermission));
 
-        Role savedRole = roleRepository.save(anonymousRole);
+        Role userRole = new Role();
+        userRole.setId(2L);
+        userRole.setName("ROLE_USER");
+
+        Set<Permission> permissionSet = new HashSet<>();
+        permissionSet.add(readMoviePermission);
+        permissionSet.add(createMoviePermission);
+
+        userRole.setPermissions(permissionSet);
+
+        Role savedAnonymousRole = roleRepository.save(anonymousRole);
+        Role savedUserRole = roleRepository.save(userRole);
 
         User anonymousUser = new User();
         anonymousUser.setUsername("anonymous");
@@ -50,7 +68,7 @@ public class DataInitializer {
 
         // update the user with the role
         User savedUser = userRepository.save(anonymousUser);
-        savedUser.setRoles(Collections.singleton(savedRole));
+        savedUser.setRoles(Collections.singleton(savedAnonymousRole));
 
         userRepository.save(savedUser);
     }

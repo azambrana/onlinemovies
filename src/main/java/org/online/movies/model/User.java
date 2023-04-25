@@ -25,6 +25,7 @@ public class User {
     private String email;
     private String firstName;
     private String lastName;
+    private String token;
     @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(name = "user_role")
     private Set<Role> roles;

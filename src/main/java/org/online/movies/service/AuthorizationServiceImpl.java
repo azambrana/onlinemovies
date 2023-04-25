@@ -19,15 +19,13 @@ public class AuthorizationServiceImpl implements AuthorizationService {
 
     @Override
     public boolean hasPermission(User user, Permission permission, Resource resource) {
-        boolean hasPermission = user.getRoles().stream().anyMatch(
+        return user.getRoles().stream().anyMatch(
                 role -> role.getPermissions().stream().anyMatch(
                         permission1 -> permission1.equals(permission) && permission1.getResources().stream().anyMatch(
                                 resource1 -> resource1.equals(resource)
                         )
                 )
         );
-
-        return hasPermission;
     }
 
     @Override
@@ -46,5 +44,24 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     @Override
     public boolean hasRole(User user, Role role) {
         return false;
+    }
+
+    @Override
+    public User findUserByToken(String token) {
+        return userService.getUserByToken(token);
+    }
+
+    @Override
+    public boolean hasAuthorization(String authorizationHeader, String permissionName, String resourceName) {
+        String[] parts = authorizationHeader.split(" ");
+        String token = parts[1];
+        // Validate token and authorize user
+        User user = this.findUserByToken(token); // Implement token validation logic
+
+        if (user == null) {
+            return false;
+        }
+
+        return this.hasPermission(user, permissionService.getPermissionByName(permissionName), resourceService.getResourceByName(resourceName));
     }
 }

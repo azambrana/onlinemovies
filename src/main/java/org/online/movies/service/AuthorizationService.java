@@ -10,4 +10,8 @@ public interface AuthorizationService {
 
     boolean hasPermission(String userName, String permissionName, String resourceName);
     boolean hasRole(User user, Role role);
+
+    User findUserByToken(String token);
+
+    boolean hasAuthorization(String authorizationHeader, String permissionName, String resourceName);
 }

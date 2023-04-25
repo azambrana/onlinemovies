@@ -10,4 +10,6 @@ public interface UserService {
 
     UserDto save(UserDto userDto);
     User getUserByUsername(String userName);
+
+    User getUserByToken(String token);
 }
