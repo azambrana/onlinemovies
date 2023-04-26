@@ -10,13 +10,8 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
-import javax.persistence.Transient;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -32,10 +27,6 @@ public class Role {
 
     @Column(nullable = true)
     private String description;
-//
-//    @ManyToMany(cascade = CascadeType.ALL)
-//    @JoinTable(name = "user_role")
-//    private List<User> users;
 
     @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(name = "role_permission")

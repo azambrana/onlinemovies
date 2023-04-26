@@ -42,13 +42,13 @@ public class MoviesController {
     }
 
     @PostMapping
-    public ResponseEntity<MovieDto> addMovie(@RequestHeader("Authorization") String authorizationHeader, @RequestBody MovieDto movieDto, HttpServletRequest request) {
+    public ResponseEntity<MovieDto> addMovie(@RequestHeader("Authorization") String authorizationHeader, @RequestBody MovieDto movieDto) {
         if ( authorizationService.hasAuthorization(authorizationHeader, "CREATE_MOVIE", "MOVIE")) {
             MovieDto addedMovieDto = movieService.addMovie(movieDto);
             return ResponseEntity.created(URI.create("/movies/" + addedMovieDto.getId())).body(addedMovieDto);
         }
 
-        return ResponseEntity.status(403).body(null);
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
     }
 
 }

@@ -94,6 +94,17 @@ class Movie {
     ' getter and setters
 }
 
+class TvShow {
+    id: Long
+    title: String
+    genre: String
+    year: String
+    seasons: Int
+    episodes: Int
+
+    ' getter and setters
+}
+
 ' dtos
 
 class UserDto {
