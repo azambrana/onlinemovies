@@ -16,19 +16,10 @@ interface ResourceRepository
 interface PermissionRepository
 
 class User
-'class UserDetails
-'class Profile
-'class Account
-'class Credential
 class Role
 class UserRole
 class Permission
 class Movie
-
-' 1, "CREATE", "USER", "create user"
-' 2, "READ", "USER", "read user"
-' 3, "CREATE", "MOVIE", "create movie"
-' 4, "READ", "MOVIE", "read movie"
 
 class RolePermission
 
@@ -43,6 +34,13 @@ RolePermission o-- Role
 UserRole o-- User
 UserRole o-- Role
 
+Media *-- Actor
+Movie o-- Actor
+TVShow o-- Actor
+Season *-- Episode
+Season o-- Actor
+Episode o-- Actor
+
 AuthorizationService -- User
 AuthorizationService -- Permission
 AuthorizationService -- Resource
@@ -52,15 +50,57 @@ AuthorizationService o-- PermissionService
 AuthorizationService o-- ResourceService
 
 ' entities
-class User {
-    -id: Long
-    -firstName: String
-    -lastName: String
-    -username: String
-    -password: String
-    -email: String
+Person <|-- User
+Person <|-- Actor
+Person <|-- Director
+User *-- Contact
+Contact *-- PhoneNumber
+Contact *-- Address
+Actor o-- Media
+Director o-- Movie
 
+class Person {
+    - id: Long
+    - firstName: String
+    - lastName: String
+    - fullName: String
+    - gender: String
+    - dob: Date
+}
+
+class User extends Person {
+    - contact: Contact
+    - credential: Credential
     ' getter and setters
+}
+
+class Contact {
+    - phone: PhoneNumber
+    - address: Address
+    - email: String
+}
+
+class Credential {
+    - username: String
+    - password: String
+}
+
+class PhoneNumber {
+    - number: String
+    - dialCode: Integer
+    - countryCode: String
+}
+
+class Address {
+    - addressLines: List<String>
+}
+
+class Actor extends Person {
+    - media: Set<Media>
+}
+
+class Director extends Person {
+    - media: Set<Media>
 }
 
 class Role {
@@ -85,24 +125,39 @@ class Resource {
     ' getter and setters
 }
 
-class Movie {
-    id: Long
-    title: String
-    genre: String
-    year: String
+class Media {
+    - id: Long
+    - title: String
+    - genre: String
+    - actors: Set<Actor>
 
     ' getter and setters
 }
 
-class TvShow {
-    id: Long
-    title: String
-    genre: String
-    year: String
-    seasons: Int
-    episodes: Int
+class Movie extends Media {
+    - year: String
 
     ' getter and setters
+}
+
+class TvShow extends Media {
+    -totalSeasons: Int
+    -totalEpisodes: Int
+    -actors: Set<Actor>
+    -seasons: Set<Season>
+
+    ' getter and setters
+}
+class Season {
+    - year: String
+    - actors: Set<Actor>
+    - episodes: Set<Episode>;
+
+    ' getter and setters
+}
+
+class Episode {
+    actors: Set<Actor>
 }
 
 ' dtos
@@ -142,6 +197,10 @@ interface AuthenticationService {
 }
 
 ' controllers
+
+UserService -- UserDto
+UserService -- User
+TvShowRepository -- User
 UserController o-- UserService
 UserController o-- AuthorizationService
 UserController o-- AuthenticationService
@@ -153,15 +212,39 @@ class UserController {
     +deleteUser(id: Long)
 }
 
+MovieService -- MovieDto
+MovieService -- Movie
 MovieService o-- MovieRepository
 MovieController o-- MovieService
 MovieController o-- AuthorizationService
 
-class MovieController {
-    +createMovie(movie: Movie)
-    +readMovie(id: Long)
-    +updateMovie(movie: Movie)
-    +deleteMovie(id: Long)
+class UserController <<@RestController>> <<@RequestMapping("/users")>> {
+    - <<@Autowired>> authenticationService: AuthenticationService;
+
+    + <<PostMapping>> register(<<ResourceBody>> userDto: UserDto, request: HttpServletRequest): UserDto
+    + <<PostMapping>> login(@RequestHeader("Authentication") authenticationHeader: String): String
+}
+
+class MovieController <<@RestController>> <<@RequestMapping("/movies")>> {
+    - <<@Autowired>> movieService: MovieService
+    - <<@Autowired>> authorizationService: AuthorizationService;
+
+    + <<PostMapping>> createMovie(@RequestHeader("Authorization") authorizationHeader: String, @RequestBody movieDto: MovieDto): MovieDto
+    + <<GetMapping>> getAllMovies(@RequestHeader("Authorization") authorizationHeader: String): List<MovieDto>
+}
+
+TvShowController o-- TvShowService
+TvShowController o-- AuthorizationService
+TvShowService o-- TvShowRepository
+
+TvShowRepository -- TvShow
+
+class TvShowController <<@RestController>> <<@RequestMapping("/tvshows")>> {
+    - <<@Autowired>> movieService: MovieService
+    - <<@Autowired>> authorizationService: AuthorizationService;
+
+    + <<PostMapping>> createTvShow(@RequestHeader("Authorization") authorizationHeader: String, @RequestBody tvShowDto: TvShowDto): TvShowDto
+    + <<GetMapping>> getAllTvShows(@RequestHeader("Authorization") authorizationHeader: String): List<TvShowDto>
 }
 
 @enduml
